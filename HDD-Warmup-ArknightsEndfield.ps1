@@ -65,7 +65,7 @@ if ($null -ne $modsPath -and (Test-Path -LiteralPath $modsPath -PathType Contain
 # ============================================================
 
 $totalBytes = 0
-totalFiles = 0
+$totalFiles = 0
 $totalErrors = 0
 $globalStart = Get-Date
 
