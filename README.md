@@ -36,7 +36,7 @@ The script is completely read-only with regard to the game files. It does **not*
 
 ## Supported games
 
-- **Zenless Zone Zero (ZZZ)"
+- **Zenless Zone Zero (ZZZ)**
 - **Arknights: Endfield**
 
 ## Requirements
