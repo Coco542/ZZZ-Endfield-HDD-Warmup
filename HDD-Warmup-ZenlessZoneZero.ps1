@@ -231,7 +231,14 @@ foreach ($path in $paths) {
     Write-Host "Files:   $pathFiles"
     Write-Host "Errors:  $pathErrors"
     Write-Host "Speed:   $([math]::Round($pathSpeed, 1)) MB/s"
-    Write-Host "Time:    $([int]$pathTime.TotalHours.ToString('0')):$($pathTime.Minutes.ToString('00')):$($pathTime.Seconds.ToString('00'))"
+
+    $pathHours = [int]$pathTime.TotalHours
+    $pathTimeFormatted = "{0}:{1:00}:{2:00}" -f `
+        $pathHours,
+        $pathTime.Minutes,
+        $pathTime.Seconds
+
+    Write-Host "Time:    $pathTimeFormatted"
 }
 
 # ============================================================

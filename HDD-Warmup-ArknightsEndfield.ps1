@@ -18,7 +18,7 @@ $paths = @(
 
 # Folders that should NOT be warmed up
 $excludePaths = @(
-    # Add folders here if you want to exclude them from the warm-up.
+    # ''
 )
 
 # Optional: path to your EFMI Mods folder.
@@ -230,7 +230,14 @@ foreach ($path in $paths) {
     Write-Host "Files:   $pathFiles"
     Write-Host "Errors:  $pathErrors"
     Write-Host "Speed:   $([math]::Round($pathSpeed, 1)) MB/s"
-    Write-Host "Time:    $([int]$pathTime.TotalHours):$($pathTime.Minutes.ToString('00')):$($pathTime.Seconds.ToString('00'))"
+
+    $pathHours = [int]$pathTime.TotalHours
+    $pathTimeFormatted = "{0}:{1:00}:{2:00}" -f `
+        $pathHours,
+        $pathTime.Minutes,
+        $pathTime.Seconds
+
+    Write-Host "Time:    $pathTimeFormatted"
 }
 
 # ============================================================
@@ -255,7 +262,8 @@ if ($totalTime.TotalSeconds -gt 0) {
     )
 }
 
-$totalTimeFormatted = "{0}:{1:00}:{2:00}" -f [int]$totalTime.TotalHours, $totalTime.Minutes, $totalTime.Seconds
+$totalHours = [int]$totalTime.TotalHours
+$totalTimeFormatted = "{0}:{1:00}:{2:00}" -f $totalHours, $totalTime.Minutes, $totalTime.Seconds
 
 Write-Host ""
 Write-Host "=========================================="
