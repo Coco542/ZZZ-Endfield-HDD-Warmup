@@ -1,33 +1,38 @@
 # ============================================================
 # HDD WARM-UP
-# ZZZ + ZZMI
+# ZENLESS ZONE ZERO
 # ============================================================
 
-# Задержка после запуска скрипта
+# Delay after starting the script (seconds)
 $startupDelay = 5
 
-# Размер буфера чтения
+# Read buffer size
 $bufferSize = 4MB
 
-# Папки для прогрева
+# Change this path to your game installation directory
 $paths = @(
     # 'D:\XXMI Launcher\ZZMI\ShaderCache'
     # 'D:\XXMI Launcher\ZZMI\Mods'
     'D:\Program Files\HoYoPlay\games\ZenlessZoneZero Game\ZenlessZoneZero_Data'
 )
 
-# Папки, которые НЕ нужно прогревать
+# Folders that should NOT be warmed up
 $excludePaths = @(
     'D:\Program Files\HoYoPlay\games\ZenlessZoneZero Game\ZenlessZoneZero_Data\StreamingAssets\Video'
     # 'D:\Program Files\HoYoPlay\games\ZenlessZoneZero Game\ZenlessZoneZero_Data\StreamingAssets\Blocks'
 )
 
+# Optional: path to your ZZMI Mods folder.
+# Disabled mod folders whose names start with "DISABLED" will be skipped.
+# Set to $null if you do not use ZZMI or do not want this behavior.
+$modsPath = 'D:\XXMI Launcher\ZZMI\Mods'
+
 # ============================================================
-# WAIT AFTER WINDOWS START
+# STARTUP DELAY
 # ============================================================
 
 Write-Host "=========================================="
-Write-Host "ZZZ + ZZMI HDD Warm-Up"
+Write-Host "Zenless Zone Zero HDD Warm-Up"
 Write-Host "=========================================="
 Write-Host ""
 Write-Host "Waiting $startupDelay seconds..."
@@ -37,9 +42,7 @@ Start-Sleep -Seconds $startupDelay
 # FIND DISABLED MODS
 # ============================================================
 
-$modsPath = 'D:\XXMI Launcher\ZZMI\Mods'
-
-if (Test-Path -LiteralPath $modsPath -PathType Container) {
+if ($null -ne $modsPath -and (Test-Path -LiteralPath $modsPath -PathType Container)) {
 
     $disabledMods = Get-ChildItem `
         -LiteralPath $modsPath `
@@ -53,7 +56,9 @@ if (Test-Path -LiteralPath $modsPath -PathType Container) {
             )
         }
 
-    $excludePaths += $disabledMods.FullName
+    if ($null -ne $disabledMods) {
+        $excludePaths += $disabledMods.FullName
+    }
 }
 
 # ============================================================
@@ -62,6 +67,7 @@ if (Test-Path -LiteralPath $modsPath -PathType Container) {
 
 $totalBytes = 0
 $totalFiles = 0
+$totalErrors = 0
 $globalStart = Get-Date
 
 $buffer = New-Object byte[] $bufferSize
@@ -87,6 +93,7 @@ foreach ($path in $paths) {
     $pathStart = Get-Date
     $pathBytes = 0
     $pathFiles = 0
+    $pathErrors = 0
 
     # --------------------------------------------------------
     # Enumerate files
@@ -175,6 +182,9 @@ foreach ($path in $paths) {
 
             catch {
 
+                $pathErrors++
+                $totalErrors++
+
                 Write-Host ""
                 Write-Host "READ ERROR:"
                 Write-Host $file.FullName
@@ -219,8 +229,9 @@ foreach ($path in $paths) {
     Write-Host ""
     Write-Host "Read:    $pathGB GB"
     Write-Host "Files:   $pathFiles"
+    Write-Host "Errors:  $pathErrors"
     Write-Host "Speed:   $([math]::Round($pathSpeed, 1)) MB/s"
-    Write-Host "Time:    $($pathTime.ToString('hh\:mm\:ss'))"
+    Write-Host "Time:    $([int]$pathTime.TotalHours.ToString('0')):$($pathTime.Minutes.ToString('00')):$($pathTime.Seconds.ToString('00'))"
 }
 
 # ============================================================
@@ -245,15 +256,24 @@ if ($totalTime.TotalSeconds -gt 0) {
     )
 }
 
+$totalHours = [int]$totalTime.TotalHours
+$totalTimeFormatted = "{0}:{1:00}:{2:00}" -f $totalHours, $totalTime.Minutes, $totalTime.Seconds
+
 Write-Host ""
 Write-Host "=========================================="
 Write-Host "HDD WARM-UP FINISHED"
 Write-Host "=========================================="
 Write-Host "Files:   $totalFiles"
 Write-Host "Read:    $totalGB GB"
+Write-Host "Errors:  $totalErrors"
 Write-Host "Speed:   $([math]::Round($totalSpeed, 1)) MB/s"
-Write-Host "Time:    $($totalTime.ToString('hh\:mm\:ss'))"
+Write-Host "Time:    $totalTimeFormatted"
 Write-Host "=========================================="
+
+if ($totalErrors -gt 0) {
+    Write-Host ""
+    Write-Host "WARNING: Some files could not be read."
+}
 
 Write-Host ""
 Write-Host "Exiting in 5 seconds..."
