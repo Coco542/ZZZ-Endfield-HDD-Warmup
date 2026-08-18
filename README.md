@@ -34,7 +34,7 @@ a significant benefit.
 
 ## Usage
 
-1. Download `HDD-Warmup.ps1`.
+1. Download `HDD-Warmup-ZenlessZoneZero.ps1` or `HDD-Warmup-ArknightsEndfield.ps1`.
 2. Edit the game paths in the script if necessary.
 3. Run the script with PowerShell.
 4. Wait for the file warm-up to finish.
